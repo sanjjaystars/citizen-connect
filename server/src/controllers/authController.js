@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const { query } = require('../db/db');
 const { JWT_SECRET } = require('../middleware/auth');
 
@@ -202,13 +203,100 @@ async function googleLogin(req, res) {
 }
 
 /**
- * Direct Real Gmail / Email Passwordless Login
+ * Real Registration for any Citizen (Email + Password + Name)
+ */
+async function register(req, res) {
+  try {
+    const { email, password, name, phone, municipality_id = 1, ward_id = 1 } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Please provide a valid Gmail or Email address' });
+    }
+    if (!password || password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const displayName = name?.trim() || cleanEmail.split('@')[0];
+
+    const existing = await query('SELECT id FROM users WHERE email = $1', [cleanEmail]);
+    if (existing.rows.length > 0) {
+      return res.status(400).json({ error: 'An account with this email already exists. Please sign in.' });
+    }
+
+    const passwordHash = bcrypt.hashSync(password, 10);
+    let userPhone = null;
+    if (phone && String(phone).trim()) {
+      const cleanPhone = String(phone).replace(/\D/g, '').slice(-10);
+      if (cleanPhone.length === 10) {
+        const phoneExist = await query('SELECT id FROM users WHERE phone = $1', [cleanPhone]);
+        if (phoneExist.rows.length > 0) {
+          return res.status(400).json({ error: 'This mobile number is already registered with another account.' });
+        }
+        userPhone = cleanPhone;
+      }
+    }
+    if (!userPhone) {
+      userPhone = `c_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+
+    const createRes = await query(
+      `INSERT INTO users (phone, email, password_hash, name, role, municipality_id, ward_id)
+       VALUES ($1, $2, $3, $4, 'citizen', $5, $6)`,
+      [userPhone, cleanEmail, passwordHash, displayName, municipality_id, ward_id]
+    );
+
+    const newId = createRes.lastInsertRowid || (createRes.rows[0] && createRes.rows[0].id);
+    const fetchNew = await query('SELECT * FROM users WHERE id = $1', [newId]);
+    const user = fetchNew.rows[0];
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        municipality_id: user.municipality_id,
+        ward_id: user.ward_id,
+      },
+      JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    let municipalityName = null;
+    let wardName = null;
+    if (user.municipality_id) {
+      const m = await query('SELECT name FROM municipalities WHERE id = $1', [user.municipality_id]);
+      municipalityName = m.rows[0]?.name;
+    }
+    if (user.ward_id) {
+      const w = await query('SELECT name FROM wards WHERE id = $1', [user.ward_id]);
+      wardName = w.rows[0]?.name;
+    }
+
+    return res.json({
+      success: true,
+      message: 'Account created successfully',
+      token,
+      user: {
+        ...user,
+        municipality_name: municipalityName,
+        ward_name: wardName,
+      },
+    });
+  } catch (err) {
+    console.error('register error:', err);
+    return res.status(500).json({ error: 'Failed to create account. Please try again.' });
+  }
+}
+
+/**
+ * Real Gmail / Email Login with Password
  */
 async function emailLogin(req, res) {
   try {
-    const { email, name, role = 'citizen' } = req.body;
+    const { email, password, name, role = 'citizen' } = req.body;
     if (!email || !email.includes('@')) {
-      return res.status(400).json({ error: 'Please enter a valid email address (e.g. user@gmail.com)' });
+      return res.status(400).json({ error: 'Please enter a valid Gmail or Email address' });
     }
 
     const cleanEmail = email.toLowerCase().trim();
@@ -217,12 +305,27 @@ async function emailLogin(req, res) {
     const userRes = await query('SELECT * FROM users WHERE email = $1', [cleanEmail]);
     let user = userRes.rows[0];
 
-    if (!user) {
+    if (user) {
+      // If user has a password set, verify it
+      if (user.password_hash && password) {
+        const isMatch = bcrypt.compareSync(password, user.password_hash);
+        if (!isMatch) {
+          return res.status(401).json({ error: 'Incorrect password. Please verify your credentials and try again.' });
+        }
+      } else if (!user.password_hash && password) {
+        // Automatically save password if user had no password yet
+        const passwordHash = bcrypt.hashSync(password, 10);
+        await query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, user.id]);
+        user.password_hash = passwordHash;
+      }
+    } else {
+      // Create new user account seamlessly
+      const passwordHash = password ? bcrypt.hashSync(password, 10) : null;
       const userPhone = req.body.phone || `e_${Math.floor(10000000 + Math.random() * 90000000)}`;
       const createRes = await query(
-        `INSERT INTO users (phone, email, name, role, municipality_id, ward_id)
-         VALUES ($1, $2, $3, $4, 1, 1)`,
-        [userPhone, cleanEmail, displayName, role]
+        `INSERT INTO users (phone, email, password_hash, name, role, municipality_id, ward_id)
+         VALUES ($1, $2, $3, $4, $5, 1, 1)`,
+        [userPhone, cleanEmail, passwordHash, displayName, role]
       );
       const newId = createRes.lastInsertRowid || (createRes.rows[0] && createRes.rows[0].id);
       const fetchNew = await query('SELECT * FROM users WHERE id = $1', [newId]);
@@ -361,6 +464,7 @@ async function getMe(req, res) {
 }
 
 module.exports = {
+  register,
   sendOtp,
   verifyOtp,
   googleLogin,

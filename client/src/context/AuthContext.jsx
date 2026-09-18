@@ -88,6 +88,11 @@ export function AuthProvider({ children }) {
     return handleAuthSuccess(res);
   };
 
+  const registerUser = async (registerData) => {
+    const res = await api.register(registerData);
+    return handleAuthSuccess(res);
+  };
+
   const loginWithGoogle = async (googleData) => {
     const res = await api.googleLogin(googleData);
     return handleAuthSuccess(res);
@@ -158,6 +163,7 @@ export function AuthProvider({ children }) {
         currentWard,
         setLocation,
         login,
+        registerUser,
         loginWithGoogle,
         loginWithEmail,
         quickLogin,

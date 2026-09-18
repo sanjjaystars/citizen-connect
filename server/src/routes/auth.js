@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { sendOtp, verifyOtp, googleLogin, emailLogin, updateProfile, getMe } = require('../controllers/authController');
+const { register, sendOtp, verifyOtp, googleLogin, emailLogin, updateProfile, getMe } = require('../controllers/authController');
 const { authenticateToken } = require('../middleware/auth');
 
+router.post('/register', register);
 router.post('/send-otp', sendOtp);
 router.post('/verify-otp', verifyOtp);
 router.post('/google', googleLogin);

@@ -131,6 +131,10 @@ function setupSqliteSchema() {
       FOREIGN KEY (user_id) REFERENCES users(id)
     );
   `);
+
+  try {
+    sqliteDb.exec('ALTER TABLE users ADD COLUMN password_hash TEXT;');
+  } catch (e) {}
 }
 
 async function setupPostgresSchema() {
@@ -202,6 +206,10 @@ async function setupPostgresSchema() {
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  try {
+    await pgClient.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);');
+  } catch (e) {}
 }
 
 function translatePostgresToSqlite(sql, params) {
