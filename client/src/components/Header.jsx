@@ -96,29 +96,6 @@ export default function Header({ activeTab, setActiveTab, onOpenCreatePost }) {
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               AI Sahayak (Guidance)
             </button>
-
-            {/* Municipality Agent Admin Portal Tab */}
-            <button
-              onClick={() => {
-                if (!isOfficial) {
-                  quickLogin('official-chennai');
-                }
-                setActiveTab('admin');
-              }}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'admin'
-                  ? 'bg-indigo-600 text-white shadow-[inset_2px_2px_4px_#3730a3,inset_-2px_-2px_4px_#6366f1]'
-                  : 'text-indigo-800 hover:text-indigo-950 font-bold'
-              }`}
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>🏛️ Municipality Admin</span>
-              {isOfficial && (
-                <span className="text-[10px] bg-indigo-500/30 text-indigo-900 px-1.5 py-0.2 rounded font-bold">
-                  Agent
-                </span>
-              )}
-            </button>
           </nav>
 
           {/* Right Action Cluster */}
@@ -186,26 +163,7 @@ export default function Header({ activeTab, setActiveTab, onOpenCreatePost }) {
                     </div>
                   </div>
 
-                  {/* Fast Switch Role Accounts */}
-                  <div className="px-3 py-2 border-b border-slate-200">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                      Switch Role (Demo Profiles)
-                    </div>
-                    <div className="space-y-1">
-                      {Object.entries(PRESET_ACCOUNTS).map(([key, item]) => (
-                        <button
-                          key={key}
-                          onClick={() => quickLogin(key)}
-                          className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-white/60 text-xs flex items-center justify-between text-slate-700"
-                        >
-                          <span className="truncate">{item.label}</span>
-                          {user?.phone === item.phone && (
-                            <span className="text-emerald-600 font-bold text-[10px]">Active</span>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+
 
                   <div className="px-2 pt-1">
                     <button

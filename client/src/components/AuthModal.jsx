@@ -92,46 +92,24 @@ export default function AuthModal() {
             1-Click Demo Profiles (Instant Access)
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {Object.entries(PRESET_ACCOUNTS).map(([key, item]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => quickLogin(key)}
-                className="text-left p-2 rounded-xl neu-btn text-xs font-semibold text-slate-800 group"
-              >
-                <div className="text-[10px] uppercase font-bold text-emerald-700 flex items-center justify-between">
-                  {item.role === 'official' ? '🏛️ Official' : '👤 Citizen'}
-                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <div className="truncate font-bold mt-0.5">{item.name.split(' ')[0]}</div>
-                <div className="text-[10px] text-slate-500 truncate">{item.phone}</div>
-              </button>
-            ))}
+            {Object.entries(PRESET_ACCOUNTS)
+              .filter(([_, item]) => item.role === 'citizen')
+              .map(([key, item]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => quickLogin(key)}
+                  className="text-left p-2 rounded-xl neu-btn text-xs font-semibold text-slate-800 group"
+                >
+                  <div className="text-[10px] uppercase font-bold text-emerald-700 flex items-center justify-between">
+                    👤 Citizen
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="truncate font-bold mt-0.5">{item.name.split(' ')[0]}</div>
+                  <div className="text-[10px] text-slate-500 truncate">{item.phone}</div>
+                </button>
+              ))}
           </div>
-        </div>
-
-        {/* Role Selector */}
-        <div className="grid grid-cols-2 gap-2 p-1.5 bg-[#ebf0f7] shadow-[inset_3px_3px_6px_#cad5e3,inset_-3px_-3px_6px_#ffffff] rounded-2xl mb-5">
-          <button
-            type="button"
-            onClick={() => setRole('citizen')}
-            className={`py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${
-              role === 'citizen' ? 'neu-pill-active' : 'text-slate-600'
-            }`}
-          >
-            <UserCheck className="w-4 h-4" />
-            Citizen
-          </button>
-          <button
-            type="button"
-            onClick={() => setRole('official')}
-            className={`py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${
-              role === 'official' ? 'neu-pill-active text-indigo-700' : 'text-slate-600'
-            }`}
-          >
-            <ShieldCheck className="w-4 h-4" />
-            Municipality Agent
-          </button>
         </div>
 
         {error && (

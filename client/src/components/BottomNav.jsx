@@ -49,21 +49,6 @@ export default function BottomNav({ activeTab, setActiveTab, onOpenCreatePost })
           <Sparkles className="w-5 h-5 text-amber-500" />
           <span>AI Sahayak</span>
         </button>
-
-        <button
-          onClick={() => {
-            if (!isOfficial) {
-              quickLogin('official-chennai');
-            }
-            setActiveTab('admin');
-          }}
-          className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl text-[11px] font-semibold transition-colors ${
-            activeTab === 'admin' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Shield className="w-5 h-5" />
-          <span>Admin</span>
-        </button>
       </div>
     </nav>
   );

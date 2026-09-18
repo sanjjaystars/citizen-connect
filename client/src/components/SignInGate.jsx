@@ -155,29 +155,7 @@ export default function SignInGate() {
           </p>
         </div>
 
-        {/* Role Switcher Pill */}
-        <div className="grid grid-cols-2 gap-2 p-1.5 bg-[#ebf0f7] shadow-[inset_3px_3px_6px_#cad5e3,inset_-3px_-3px_6px_#ffffff] rounded-2xl mb-5">
-          <button
-            type="button"
-            onClick={() => setRole('citizen')}
-            className={`py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${
-              role === 'citizen' ? 'neu-pill-active' : 'text-slate-600'
-            }`}
-          >
-            <User className="w-4 h-4" />
-            Citizen
-          </button>
-          <button
-            type="button"
-            onClick={() => setRole('official')}
-            className={`py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${
-              role === 'official' ? 'neu-pill-active text-indigo-700' : 'text-slate-600'
-            }`}
-          >
-            <Shield className="w-4 h-4" />
-            Municipality Agent
-          </button>
-        </div>
+
 
         {/* Errors & Notices */}
         {error && (
@@ -355,20 +333,22 @@ export default function SignInGate() {
             <span className="text-emerald-700">1-Tap Login</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {Object.entries(PRESET_ACCOUNTS).map(([key, item]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => quickLogin(key)}
-                className="text-left p-2 rounded-xl neu-btn text-xs font-semibold text-slate-700 hover:text-emerald-800"
-              >
-                <div className="text-[10px] font-bold text-emerald-700">
-                  {item.role === 'official' ? '🏛️ Official' : '👤 Citizen'}
-                </div>
-                <div className="truncate font-bold text-slate-900">{item.name.split(' ')[0]}</div>
-                <div className="text-[10px] text-slate-400 truncate">{item.phone}</div>
-              </button>
-            ))}
+            {Object.entries(PRESET_ACCOUNTS)
+              .filter(([_, item]) => item.role === 'citizen')
+              .map(([key, item]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => quickLogin(key)}
+                  className="text-left p-2 rounded-xl neu-btn text-xs font-semibold text-slate-700 hover:text-emerald-800"
+                >
+                  <div className="text-[10px] font-bold text-emerald-700">
+                    👤 Citizen
+                  </div>
+                  <div className="truncate font-bold text-slate-900">{item.name.split(' ')[0]}</div>
+                  <div className="text-[10px] text-slate-400 truncate">{item.phone}</div>
+                </button>
+              ))}
           </div>
         </div>
       </div>
