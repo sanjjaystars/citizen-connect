@@ -55,14 +55,14 @@ export default function BottomNav({ activeTab, setActiveTab, onOpenCreatePost })
             if (!isOfficial) {
               quickLogin('official-chennai');
             }
-            setActiveTab('official');
+            setActiveTab('admin');
           }}
           className={`flex flex-col items-center gap-0.5 py-1 px-2 rounded-xl text-[11px] font-semibold transition-colors ${
-            activeTab === 'official' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-900'
+            activeTab === 'admin' ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           <Shield className="w-5 h-5" />
-          <span>Official</span>
+          <span>Admin</span>
         </button>
       </div>
     </nav>

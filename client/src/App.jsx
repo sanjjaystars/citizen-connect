@@ -1,20 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Header from './components/Header';
 import BottomNav from './components/BottomNav';
 import FeedView from './components/FeedView';
 import LeafletMapView from './components/LeafletMapView';
 import AIChatbotView from './components/AIChatbotView';
-import OfficialDashboard from './components/OfficialDashboard';
+import AdminPage from './components/AdminPage';
 import CreatePostModal from './components/CreatePostModal';
 import AuthModal from './components/AuthModal';
 import LocationSelectorModal from './components/LocationSelectorModal';
 
 function MainApp() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('feed'); // 'feed' | 'map' | 'chatbot' | 'official'
+  const [activeTab, setActiveTab] = useState(() => {
+    if (window.location.hash === '#admin' || window.location.pathname === '/admin') {
+      return 'admin';
+    }
+    return 'feed';
+  });
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Sync route hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#admin') {
+        setActiveTab('admin');
+      } else if (window.location.hash === '#feed') {
+        setActiveTab('feed');
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'admin') {
+      window.location.hash = 'admin';
+    } else {
+      window.location.hash = tab;
+    }
+  };
 
   const handlePostCreated = () => {
     setRefreshKey((k) => k + 1);
@@ -25,7 +53,7 @@ function MainApp() {
       {/* Header Bar */}
       <Header
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleTabChange}
         onOpenCreatePost={() => setIsCreateOpen(true)}
       />
 
@@ -44,13 +72,17 @@ function MainApp() {
           />
         )}
         {activeTab === 'chatbot' && <AIChatbotView />}
-        {activeTab === 'official' && <OfficialDashboard />}
+        {activeTab === 'admin' && (
+          <AdminPage
+            onSwitchToCitizen={() => handleTabChange('feed')}
+          />
+        )}
       </main>
 
       {/* Floating Bottom Nav for Mobile */}
       <BottomNav
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleTabChange}
         onOpenCreatePost={() => setIsCreateOpen(true)}
       />
 

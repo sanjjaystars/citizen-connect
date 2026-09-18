@@ -102,22 +102,23 @@ export default function Header({ activeTab, setActiveTab, onOpenCreatePost }) {
               AI Sahayak (Guidance)
             </button>
 
-            {/* Official Dashboard Tab */}
+            {/* Municipality Agent Admin Portal Tab */}
             <button
               onClick={() => {
                 if (!isOfficial) {
                   quickLogin('official-chennai');
                 }
-                setActiveTab('official');
+                setActiveTab('admin');
               }}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === 'official'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-indigo-700 hover:bg-indigo-50'
+                activeTab === 'admin'
+                  ? 'bg-indigo-700 text-white shadow-xs'
+                  : 'text-indigo-800 hover:bg-indigo-100/70'
               }`}
             >
-              <Shield className="w-3.5 h-3.5" />
-              Official Portal {isOfficial && '✓'}
+              <Shield className="w-3.5 h-3.5 text-indigo-400" />
+              <span>🏛️ Municipality Admin Portal</span>
+              {isOfficial && <span className="text-[10px] bg-indigo-500 text-white px-1.5 py-0.2 rounded font-mono">Agent</span>}
             </button>
           </nav>
 
