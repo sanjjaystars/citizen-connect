@@ -8,7 +8,6 @@ import {
   Clock,
   AlertCircle,
   AlertTriangle,
-  Filter,
   Search,
   MapPin,
   Phone,
@@ -16,22 +15,14 @@ import {
   Edit3,
   BarChart3,
   Layers,
-  ArrowUpDown,
   RefreshCw,
   X,
   Check,
-  Calendar,
-  Eye,
   Columns,
-  ThumbsUp,
-  FileText,
-  Lock,
-  ArrowRight,
-  ExternalLink,
   ChevronRight,
   Sparkles,
+  ExternalLink,
 } from 'lucide-react';
-import L from 'leaflet';
 
 const SEVERITY_COLORS = {
   High: 'bg-rose-100 text-rose-800 border-rose-200',
@@ -49,7 +40,7 @@ const CATEGORY_COLORS = {
 };
 
 export default function AdminPage({ onSwitchToCitizen }) {
-  const { user, quickLogin, logout } = useAuth();
+  const { user, quickLogin } = useAuth();
   const [posts, setPosts] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [departments, setDepartments] = useState([]);
@@ -64,10 +55,8 @@ export default function AdminPage({ onSwitchToCitizen }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState('date'); // 'date' | 'upvotes' | 'severity'
 
-  // View modes: 'table' | 'kanban' | 'analytics'
-  const [viewMode, setViewMode] = useState('kanban');
+  const [viewMode, setViewMode] = useState('kanban'); // 'kanban' | 'table' | 'analytics'
 
-  // Modal for issue inspection and status update
   const [activeModalPost, setActiveModalPost] = useState(null);
   const [newStatus, setNewStatus] = useState('In Progress');
   const [newDepartmentId, setNewDepartmentId] = useState('');
@@ -150,9 +139,8 @@ export default function AdminPage({ onSwitchToCitizen }) {
         department_id: newDepartmentId ? parseInt(newDepartmentId, 10) : undefined,
       });
 
-      setUpdateSuccess(`Status updated to "${newStatus}" and notes synced to citizens!`);
+      setUpdateSuccess(`Status updated to "${newStatus}"! Real-time note published to citizen feed.`);
 
-      // Update local post state
       setPosts((prev) =>
         prev.map((p) =>
           p.id === activeModalPost.id
@@ -169,12 +157,11 @@ export default function AdminPage({ onSwitchToCitizen }) {
         )
       );
 
-      // Refresh analytics
       api.getAnalytics(municipalityId).then(setAnalytics).catch(console.warn);
 
       setTimeout(() => {
         setActiveModalPost(null);
-      }, 1100);
+      }, 1200);
     } catch (err) {
       alert(err.message || 'Failed to update status');
     } finally {
@@ -182,69 +169,69 @@ export default function AdminPage({ onSwitchToCitizen }) {
     }
   };
 
-  // IF NOT LOGGED IN AS AN OFFICIAL, SHOW DEDICATED OFFICIAL LOGIN PORTAL
+  // Dedicated Official Login Screen
   if (!isOfficial) {
     return (
-      <div className="min-h-[85vh] bg-slate-900 flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-slate-800/90 backdrop-blur-xl border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl text-white">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-600/30 border border-indigo-500/40 text-indigo-400 flex items-center justify-center mb-5 mx-auto">
+      <div className="min-h-[85vh] bg-[#ebf0f7] flex items-center justify-center p-4">
+        <div className="w-full max-w-lg neu-card rounded-3xl p-6 sm:p-8 border border-white/80 shadow-[10px_10px_25px_#cad4e3,-10px_-10px_25px_#ffffff]">
+          <div className="w-14 h-14 rounded-2xl bg-[#ebf0f7] shadow-[5px_5px_12px_#cad5e3,-5px_-5px_12px_#ffffff] text-indigo-700 flex items-center justify-center mb-5 mx-auto border border-white/60">
             <Shield className="w-7 h-7" />
           </div>
 
           <div className="text-center space-y-2 mb-6">
-            <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold uppercase tracking-wider border border-indigo-400/30">
-              Restricted Access
+            <span className="px-3 py-1 rounded-full bg-[#ebf0f7] shadow-[inset_2px_2px_4px_#cbd6e4,inset_-2px_-2px_4px_#ffffff] text-indigo-700 text-xs font-extrabold uppercase tracking-wider">
+              Restricted Authority
             </span>
-            <h2 className="text-2xl font-bold tracking-tight text-white">
-              Municipality Agent Admin Console
+            <h2 className="text-2xl font-extrabold tracking-tight text-slate-800">
+              Municipality Agent Console
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
-              This portal is reserved for municipal corporation engineers, ward inspectors, and department agents to inspect and resolve citizen complaints.
+            <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
+              Reserved for municipal corporation zonal officers and field engineers to view and resolve real citizen complaints.
             </p>
           </div>
 
-          {/* Quick 1-Click Agent Login Demo Buttons */}
-          <div className="space-y-3 p-4 bg-slate-950/60 rounded-2xl border border-slate-800 mb-6">
-            <div className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
-              1-Click Municipality Agent Login (Demo)
+          {/* Quick 1-Click Agent Profiles */}
+          <div className="space-y-3 p-4 bg-[#ebf0f7] shadow-[inset_3px_3px_6px_#cbd6e4,inset_-3px_-3px_6px_#ffffff] rounded-2xl mb-6">
+            <div className="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-indigo-600" />
+              1-Click Municipality Agent Login
             </div>
 
             <button
               onClick={() => quickLogin('official-chennai')}
-              className="w-full text-left p-3 rounded-xl bg-slate-800 hover:bg-indigo-950/80 border border-slate-700 hover:border-indigo-500 transition-all text-xs flex items-center justify-between group"
+              className="w-full text-left p-3.5 rounded-2xl neu-btn text-xs flex items-center justify-between group"
             >
               <div>
-                <div className="font-bold text-white group-hover:text-indigo-300 text-sm">
+                <div className="font-extrabold text-slate-900 text-sm">
                   Greater Chennai Corporation (GCC)
                 </div>
-                <div className="text-[11px] text-slate-400">
-                  Officer Rajesh Kumar • Zone 8 (Anna Nagar, T. Nagar, Adyar)
+                <div className="text-[11px] text-slate-500 font-medium">
+                  Officer Rajesh Kumar • Zone 8 Command
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
+              <ChevronRight className="w-4 h-4 text-indigo-600 group-hover:translate-x-1 transition-all" />
             </button>
 
             <button
               onClick={() => quickLogin('official-coimbatore')}
-              className="w-full text-left p-3 rounded-xl bg-slate-800 hover:bg-indigo-950/80 border border-slate-700 hover:border-indigo-500 transition-all text-xs flex items-center justify-between group"
+              className="w-full text-left p-3.5 rounded-2xl neu-btn text-xs flex items-center justify-between group"
             >
               <div>
-                <div className="font-bold text-white group-hover:text-indigo-300 text-sm">
-                  Coimbatore City Municipal Corp (CCMC)
+                <div className="font-extrabold text-slate-900 text-sm">
+                  Coimbatore City Municipal Corporation (CCMC)
                 </div>
-                <div className="text-[11px] text-slate-400">
-                  Officer Meena Sundaram • Central Zone (RS Puram, Gandhipuram)
+                <div className="text-[11px] text-slate-500 font-medium">
+                  Officer Meena Sundaram • Central Zone Command
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
+              <ChevronRight className="w-4 h-4 text-indigo-600 group-hover:translate-x-1 transition-all" />
             </button>
           </div>
 
-          <div className="text-center pt-2">
+          <div className="text-center pt-1">
             <button
               onClick={onSwitchToCitizen}
-              className="text-xs text-slate-400 hover:text-white transition-colors underline"
+              className="text-xs text-slate-500 hover:text-slate-800 font-bold underline"
             >
               ← Return to Citizen Community Feed
             </button>
@@ -254,7 +241,6 @@ export default function AdminPage({ onSwitchToCitizen }) {
     );
   }
 
-  // GROUP POSTS FOR KANBAN VIEW
   const kanbanColumns = {
     Received: posts.filter((p) => p.status === 'Received'),
     'In Progress': posts.filter((p) => p.status === 'In Progress'),
@@ -262,48 +248,43 @@ export default function AdminPage({ onSwitchToCitizen }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 pb-16">
+    <div className="min-h-screen bg-[#ebf0f7] text-slate-900 pb-16">
       {/* Top Municipal Executive Header Bar */}
-      <div className="bg-slate-900 border-b border-slate-800 text-white sticky top-16 z-30 shadow-md">
+      <div className="bg-[#ebf0f7] border-b border-[#cbd6e4] sticky top-18 z-30 shadow-[0_4px_12px_#cbd6e4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-700 flex items-center justify-center text-white font-black shadow-md shadow-indigo-600/30">
+            <div className="w-10 h-10 rounded-2xl bg-[#ebf0f7] shadow-[4px_4px_8px_#cbd6e4,-4px_-4px_8px_#ffffff] text-indigo-700 flex items-center justify-center border border-white/60">
               <Building className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm sm:text-base font-extrabold tracking-tight text-white">
+                <span className="text-base font-extrabold tracking-tight text-slate-900">
                   {municipalityName}
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
                   Agent Console
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                <span>Agent: <strong className="text-slate-200">{user?.name}</strong> ({user?.phone})</span>
+              <p className="text-[11px] text-slate-500 font-medium">
+                Officer: <strong className="text-slate-800">{user?.name}</strong> ({user?.phone})
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Quick Corporation Switcher */}
-            <div className="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700">
+            <div className="flex items-center bg-[#ebf0f7] p-1 rounded-xl shadow-[inset_2px_2px_4px_#cbd6e4,inset_-2px_-2px_4px_#ffffff]">
               <button
                 onClick={() => quickLogin('official-chennai')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  municipalityId === 1
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'text-slate-400 hover:text-white'
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                  municipalityId === 1 ? 'neu-pill-active text-indigo-700' : 'text-slate-600'
                 }`}
               >
                 Chennai GCC
               </button>
               <button
                 onClick={() => quickLogin('official-coimbatore')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  municipalityId === 2
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'text-slate-400 hover:text-white'
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                  municipalityId === 2 ? 'neu-pill-active text-indigo-700' : 'text-slate-600'
                 }`}
               >
                 Coimbatore CCMC
@@ -312,7 +293,7 @@ export default function AdminPage({ onSwitchToCitizen }) {
 
             <button
               onClick={onSwitchToCitizen}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 transition-all flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-700 flex items-center gap-1.5"
             >
               <span>Citizen View</span>
               <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
@@ -322,64 +303,61 @@ export default function AdminPage({ onSwitchToCitizen }) {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* KPI Performance Metric Tiles */}
+        {/* Metric KPI Tiles */}
         {analytics?.summary && (
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+            <div className="neu-card rounded-2xl p-4">
               <span className="text-[11px] uppercase font-bold text-slate-400 block">Total Issues Logged</span>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
+              <div className="text-2xl sm:text-3xl font-black text-slate-800 mt-1">
                 {analytics.summary.total_issues || 0}
               </div>
-              <span className="text-[10px] text-slate-500 mt-0.5 block">Across all corporation wards</span>
+              <span className="text-[10px] text-slate-500 mt-0.5 block">Across all wards</span>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl border border-sky-200 shadow-2xs">
-              <span className="text-[11px] uppercase font-bold text-sky-600 block">1. Received (New)</span>
+            <div className="neu-card rounded-2xl p-4">
+              <span className="text-[11px] uppercase font-bold text-sky-600 block">1. Received (Pending)</span>
               <div className="text-2xl sm:text-3xl font-black text-sky-700 mt-1">
                 {analytics.summary.count_received || 0}
               </div>
-              <span className="text-[10px] text-sky-600/80 mt-0.5 block">Awaiting field inspection</span>
+              <span className="text-[10px] text-sky-600/80 mt-0.5 block">Awaiting inspection</span>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl border border-amber-200 shadow-2xs">
+            <div className="neu-card rounded-2xl p-4">
               <span className="text-[11px] uppercase font-bold text-amber-600 block">2. In Progress</span>
               <div className="text-2xl sm:text-3xl font-black text-amber-700 mt-1">
                 {analytics.summary.count_in_progress || 0}
               </div>
-              <span className="text-[10px] text-amber-600/80 mt-0.5 block">Crews dispatched on site</span>
+              <span className="text-[10px] text-amber-600/80 mt-0.5 block">Crew dispatched</span>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl border border-emerald-200 shadow-2xs">
-              <span className="text-[11px] uppercase font-bold text-emerald-600 block">3. Resolved (Closed)</span>
+            <div className="neu-card rounded-2xl p-4">
+              <span className="text-[11px] uppercase font-bold text-emerald-600 block">3. Resolved</span>
               <div className="text-2xl sm:text-3xl font-black text-emerald-700 mt-1">
                 {analytics.summary.count_resolved || 0}
               </div>
-              <span className="text-[10px] text-emerald-600/80 mt-0.5 block">Work completed & verified</span>
+              <span className="text-[10px] text-emerald-600/80 mt-0.5 block">Closed & confirmed</span>
             </div>
 
-            <div className="bg-rose-50/90 p-4 rounded-2xl border border-rose-200 shadow-2xs col-span-2 sm:col-span-1">
+            <div className="neu-card rounded-2xl p-4 border border-rose-200">
               <span className="text-[11px] uppercase font-bold text-rose-700 block flex items-center gap-1">
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-600 animate-pulse" /> High Severity
               </span>
               <div className="text-2xl sm:text-3xl font-black text-rose-800 mt-1">
                 {analytics.summary.count_high_priority || 0}
               </div>
-              <span className="text-[10px] text-rose-600 mt-0.5 block">Immediate action required</span>
+              <span className="text-[10px] text-rose-600 mt-0.5 block">Urgent priority</span>
             </div>
           </div>
         )}
 
-        {/* Action & Filter Toolbar */}
-        <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-2xs space-y-3">
+        {/* Neumorphic Toolbar */}
+        <div className="neu-flat rounded-3xl p-4 space-y-3">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            {/* View Mode Switcher */}
-            <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl w-fit">
+            <div className="flex items-center gap-2 p-1.5 bg-[#ebf0f7] rounded-2xl shadow-[inset_3px_3px_6px_#cbd6e4,inset_-3px_-3px_6px_#ffffff]">
               <button
                 onClick={() => setViewMode('kanban')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  viewMode === 'kanban'
-                    ? 'bg-white text-indigo-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  viewMode === 'kanban' ? 'neu-pill-active text-indigo-700' : 'text-slate-600'
                 }`}
               >
                 <Columns className="w-3.5 h-3.5" />
@@ -388,10 +366,8 @@ export default function AdminPage({ onSwitchToCitizen }) {
 
               <button
                 onClick={() => setViewMode('table')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  viewMode === 'table'
-                    ? 'bg-white text-indigo-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  viewMode === 'table' ? 'neu-pill-active text-indigo-700' : 'text-slate-600'
                 }`}
               >
                 <Layers className="w-3.5 h-3.5" />
@@ -400,10 +376,8 @@ export default function AdminPage({ onSwitchToCitizen }) {
 
               <button
                 onClick={() => setViewMode('analytics')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  viewMode === 'analytics'
-                    ? 'bg-white text-indigo-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  viewMode === 'analytics' ? 'neu-pill-active text-indigo-700' : 'text-slate-600'
                 }`}
               >
                 <BarChart3 className="w-3.5 h-3.5" />
@@ -411,23 +385,22 @@ export default function AdminPage({ onSwitchToCitizen }) {
               </button>
             </div>
 
-            {/* Search Box */}
             <div className="flex items-center gap-2 flex-1 max-w-md">
               <div className="relative flex-1">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && fetchAdminData()}
-                  placeholder="Search complaint text, citizen name, phone, street..."
-                  className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  placeholder="Search real complaints by text, citizen name, phone..."
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-2xl neu-input text-xs font-medium"
                 />
               </div>
 
               <button
                 onClick={fetchAdminData}
-                className="p-2 border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-600"
+                className="p-2.5 rounded-2xl neu-btn text-slate-600"
                 title="Refresh issues"
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -435,15 +408,13 @@ export default function AdminPage({ onSwitchToCitizen }) {
             </div>
           </div>
 
-          {/* Filtering Dropdowns */}
-          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 text-xs font-semibold">
-            {/* Category Filter */}
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200/60 text-xs font-semibold">
             <div className="flex items-center gap-1.5">
               <span className="text-slate-400 text-[11px] uppercase font-bold">Category:</span>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700"
+                className="px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-700"
               >
                 <option value="All">All Categories</option>
                 <option value="Road">Road</option>
@@ -454,13 +425,12 @@ export default function AdminPage({ onSwitchToCitizen }) {
               </select>
             </div>
 
-            {/* Severity Filter */}
             <div className="flex items-center gap-1.5">
               <span className="text-slate-400 text-[11px] uppercase font-bold">Severity:</span>
               <select
                 value={selectedSeverity}
                 onChange={(e) => setSelectedSeverity(e.target.value)}
-                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700"
+                className="px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-700"
               >
                 <option value="All">All Severities</option>
                 <option value="High">🚨 High Only</option>
@@ -469,14 +439,13 @@ export default function AdminPage({ onSwitchToCitizen }) {
               </select>
             </div>
 
-            {/* Department Filter */}
             {departments.length > 0 && (
               <div className="flex items-center gap-1.5">
                 <span className="text-slate-400 text-[11px] uppercase font-bold">Department:</span>
                 <select
                   value={selectedDepartment}
                   onChange={(e) => setSelectedDepartment(e.target.value)}
-                  className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 max-w-[180px] truncate"
+                  className="px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-slate-700 max-w-[180px] truncate"
                 >
                   <option value="All">All Departments</option>
                   {departments.map((d) => (
@@ -487,143 +456,112 @@ export default function AdminPage({ onSwitchToCitizen }) {
                 </select>
               </div>
             )}
-
-            {/* Sort Options */}
-            <div className="flex items-center gap-1.5 ml-auto">
-              <span className="text-slate-400 text-[11px] uppercase font-bold">Sort:</span>
-              <select
-                value={sortField}
-                onChange={(e) => setSortField(e.target.value)}
-                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700"
-              >
-                <option value="date">Newest Date</option>
-                <option value="upvotes">🔥 Most Upvoted</option>
-                <option value="severity">⚠️ Highest Severity</option>
-                <option value="oldest">Oldest First</option>
-              </select>
-            </div>
           </div>
         </div>
 
-        {/* MAIN VIEWS */}
+        {/* Content Display */}
         {loading ? (
           <div className="py-20 text-center space-y-3">
             <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-sm font-semibold text-slate-600">Loading municipal complaints & routing data...</p>
+            <p className="text-sm font-semibold text-slate-600">Loading municipal complaints data...</p>
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="neu-card rounded-3xl p-10 text-center space-y-3">
+            <div className="w-14 h-14 rounded-2xl bg-[#ebf0f7] shadow-[4px_4px_8px_#cbd6e4,-4px_-4px_8px_#ffffff] text-indigo-700 flex items-center justify-center mx-auto">
+              <Shield className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-extrabold text-slate-800">
+              No Citizen Complaints in Queue
+            </h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              Dummy sample issues have been cleared. As real citizens upload problems via the app, they will appear here in real time for inspection and dispatch!
+            </p>
           </div>
         ) : viewMode === 'kanban' ? (
-          /* KANBAN TRIAGE PIPELINE */
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* Column 1: Received */}
-            <div className="bg-slate-200/70 rounded-2xl p-4 space-y-3 border border-slate-300/80">
+            {/* 1. Received */}
+            <div className="neu-flat rounded-3xl p-4 space-y-3 border border-sky-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-sky-500" />
-                  <h3 className="font-bold text-sm text-slate-900">1. Received (Pending)</h3>
+                  <h3 className="font-extrabold text-xs sm:text-sm text-slate-800">1. Received (Pending)</h3>
                 </div>
-                <span className="px-2 py-0.5 rounded-full text-xs font-extrabold bg-sky-100 text-sky-800">
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800">
                   {kanbanColumns['Received'].length}
                 </span>
               </div>
 
               <div className="space-y-3 max-h-[72vh] overflow-y-auto pr-1">
                 {kanbanColumns['Received'].map((post) => (
-                  <KanbanCard
-                    key={post.id}
-                    post={post}
-                    onOpenModal={() => handleOpenStatusModal(post)}
-                  />
+                  <KanbanCard key={post.id} post={post} onOpenModal={() => handleOpenStatusModal(post)} />
                 ))}
-                {kanbanColumns['Received'].length === 0 && (
-                  <div className="py-8 text-center text-xs text-slate-500 italic bg-white/50 rounded-xl">
-                    No new complaints pending review.
-                  </div>
-                )}
               </div>
             </div>
 
-            {/* Column 2: In Progress */}
-            <div className="bg-slate-200/70 rounded-2xl p-4 space-y-3 border border-slate-300/80">
+            {/* 2. In Progress */}
+            <div className="neu-flat rounded-3xl p-4 space-y-3 border border-amber-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-amber-500" />
-                  <h3 className="font-bold text-sm text-slate-900">2. In Progress (Dispatched)</h3>
+                  <h3 className="font-extrabold text-xs sm:text-sm text-slate-800">2. In Progress</h3>
                 </div>
-                <span className="px-2 py-0.5 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
                   {kanbanColumns['In Progress'].length}
                 </span>
               </div>
 
               <div className="space-y-3 max-h-[72vh] overflow-y-auto pr-1">
                 {kanbanColumns['In Progress'].map((post) => (
-                  <KanbanCard
-                    key={post.id}
-                    post={post}
-                    onOpenModal={() => handleOpenStatusModal(post)}
-                  />
+                  <KanbanCard key={post.id} post={post} onOpenModal={() => handleOpenStatusModal(post)} />
                 ))}
-                {kanbanColumns['In Progress'].length === 0 && (
-                  <div className="py-8 text-center text-xs text-slate-500 italic bg-white/50 rounded-xl">
-                    No complaints currently in progress.
-                  </div>
-                )}
               </div>
             </div>
 
-            {/* Column 3: Resolved */}
-            <div className="bg-slate-200/70 rounded-2xl p-4 space-y-3 border border-slate-300/80">
+            {/* 3. Resolved */}
+            <div className="neu-flat rounded-3xl p-4 space-y-3 border border-emerald-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <h3 className="font-bold text-sm text-slate-900">3. Resolved (Closed)</h3>
+                  <h3 className="font-extrabold text-xs sm:text-sm text-slate-800">3. Resolved</h3>
                 </div>
-                <span className="px-2 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800">
+                <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
                   {kanbanColumns['Resolved'].length}
                 </span>
               </div>
 
               <div className="space-y-3 max-h-[72vh] overflow-y-auto pr-1">
                 {kanbanColumns['Resolved'].map((post) => (
-                  <KanbanCard
-                    key={post.id}
-                    post={post}
-                    onOpenModal={() => handleOpenStatusModal(post)}
-                  />
+                  <KanbanCard key={post.id} post={post} onOpenModal={() => handleOpenStatusModal(post)} />
                 ))}
-                {kanbanColumns['Resolved'].length === 0 && (
-                  <div className="py-8 text-center text-xs text-slate-500 italic bg-white/50 rounded-xl">
-                    No resolved complaints found in filter.
-                  </div>
-                )}
               </div>
             </div>
           </div>
-        ) : viewMode === 'table' ? (
-          /* TABLE VIEW */
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        ) : (
+          /* Table View */
+          <div className="neu-card rounded-3xl overflow-hidden border border-white/80">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+                <thead className="bg-[#ebf0f7] border-b border-[#cbd6e4] text-slate-500 font-bold uppercase tracking-wider">
                   <tr>
                     <th className="py-3.5 px-4">Ticket</th>
-                    <th className="py-3.5 px-4">Category & Department</th>
+                    <th className="py-3.5 px-4">Category</th>
                     <th className="py-3.5 px-4">Description & Location</th>
                     <th className="py-3.5 px-4">Citizen Contact</th>
                     <th className="py-3.5 px-4">Upvotes</th>
                     <th className="py-3.5 px-4">Severity</th>
-                    <th className="py-3.5 px-4">Status & Notes</th>
-                    <th className="py-3.5 px-4 text-right">Agent Action</th>
+                    <th className="py-3.5 px-4">Status</th>
+                    <th className="py-3.5 px-4 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-200/60 bg-[#ebf0f7]">
                   {posts.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
+                    <tr key={p.id} className="hover:bg-white/40 transition-colors">
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2.5">
                           <img
                             src={p.photo_url}
                             alt=""
-                            className="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0"
+                            className="w-12 h-12 rounded-xl object-cover shadow-sm shrink-0"
                           />
                           <span className="font-mono font-bold text-slate-500">#{p.id}</span>
                         </div>
@@ -631,8 +569,8 @@ export default function AdminPage({ onSwitchToCitizen }) {
 
                       <td className="py-3 px-4">
                         <div className="font-bold text-slate-900">{p.category}</div>
-                        <div className="text-[11px] text-slate-500 truncate max-w-[180px]">
-                          {p.department_name || 'General Municipal Works'}
+                        <div className="text-[11px] text-slate-500 truncate max-w-[170px]">
+                          {p.department_name}
                         </div>
                       </td>
 
@@ -651,7 +589,7 @@ export default function AdminPage({ onSwitchToCitizen }) {
                         </div>
                         <a
                           href={`tel:${p.citizen_phone}`}
-                          className="text-[11px] text-indigo-600 hover:underline flex items-center gap-1 font-mono mt-0.5"
+                          className="text-[11px] text-indigo-700 hover:underline flex items-center gap-1 font-mono font-bold"
                         >
                           <Phone className="w-3 h-3" />
                           <span>{p.citizen_phone}</span>
@@ -659,14 +597,14 @@ export default function AdminPage({ onSwitchToCitizen }) {
                       </td>
 
                       <td className="py-3 px-4">
-                        <span className="font-extrabold text-slate-900 bg-slate-100 px-2.5 py-1 rounded-lg">
+                        <span className="font-extrabold text-slate-800 neu-btn px-2.5 py-1 rounded-lg">
                           👍 {p.upvotes_count}
                         </span>
                       </td>
 
                       <td className="py-3 px-4">
                         <span
-                          className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] uppercase tracking-wider border ${
+                          className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] uppercase border ${
                             SEVERITY_COLORS[p.severity] || SEVERITY_COLORS.Medium
                           }`}
                         >
@@ -686,23 +624,14 @@ export default function AdminPage({ onSwitchToCitizen }) {
                         >
                           {p.status}
                         </span>
-                        {p.official_notes && (
-                          <div
-                            className="text-[10px] text-slate-500 mt-1 max-w-[160px] truncate"
-                            title={p.official_notes}
-                          >
-                            Note: {p.official_notes}
-                          </div>
-                        )}
                       </td>
 
                       <td className="py-3 px-4 text-right">
                         <button
                           onClick={() => handleOpenStatusModal(p)}
-                          className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-xs transition-all inline-flex items-center gap-1"
+                          className="px-3.5 py-1.5 neu-btn-indigo rounded-xl text-xs font-bold"
                         >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          Resolve / Update
+                          Update
                         </button>
                       </td>
                     </tr>
@@ -711,174 +640,82 @@ export default function AdminPage({ onSwitchToCitizen }) {
               </table>
             </div>
           </div>
-        ) : (
-          /* ANALYTICS CHARTS VIEW */
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Category Breakdown */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                  Issues By Category (Open vs Resolved)
-                </h3>
-                <BarChart3 className="w-4 h-4 text-slate-400" />
-              </div>
-
-              <div className="space-y-4">
-                {analytics?.categories?.map((cat) => {
-                  const total = parseInt(cat.total || 0, 10);
-                  const resolved = parseInt(cat.resolved || 0, 10);
-                  const open = parseInt(cat.open || 0, 10);
-                  const pctResolved = total > 0 ? Math.round((resolved / total) * 100) : 0;
-
-                  return (
-                    <div key={cat.category} className="space-y-1.5">
-                      <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
-                        <span className="font-bold">{cat.category}</span>
-                        <span className="text-slate-500">
-                          {resolved} Resolved / {open} Open ({pctResolved}%)
-                        </span>
-                      </div>
-                      <div className="w-full bg-slate-100 rounded-full h-3 flex overflow-hidden">
-                        <div
-                          style={{ width: `${pctResolved}%` }}
-                          className="bg-emerald-500 h-full transition-all"
-                        />
-                        <div
-                          style={{ width: `${100 - pctResolved}%` }}
-                          className="bg-amber-400 h-full transition-all"
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Ward Grievance Distribution */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                  Ward Grievance Volume & Resolution
-                </h3>
-                <Building className="w-4 h-4 text-slate-400" />
-              </div>
-
-              <div className="space-y-3">
-                {analytics?.wards?.map((ward) => {
-                  const total = parseInt(ward.total || 0, 10);
-                  const resolved = parseInt(ward.resolved || 0, 10);
-                  return (
-                    <div
-                      key={ward.ward_name}
-                      className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between"
-                    >
-                      <div>
-                        <div className="text-xs font-bold text-slate-900">{ward.ward_name}</div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">
-                          Total Complaints Logged: {total}
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
-                        {resolved} Closed
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
         )}
       </div>
 
-      {/* COMPREHENSIVE AGENT ACTION & RESOLUTION MODAL */}
+      {/* Resolution Modal */}
       {activeModalPost && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in overflow-y-auto">
-          <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden my-auto max-h-[92vh] flex flex-col">
-            {/* Modal Top Banner */}
-            <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-5 text-white flex items-center justify-between shrink-0">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+          <div className="w-full max-w-2xl neu-card rounded-3xl overflow-hidden my-auto max-h-[92vh] flex flex-col border border-white/80">
+            <div className="bg-[#ebf0f7] border-b border-[#cbd6e4] p-5 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold">
                   #{activeModalPost.id}
                 </div>
                 <div>
-                  <h3 className="text-base font-bold leading-tight">
-                    Issue Resolution & Official Action
+                  <h3 className="text-base font-extrabold text-slate-800">
+                    Municipal Resolution & Action
                   </h3>
-                  <p className="text-xs text-indigo-200 mt-0.5">
+                  <p className="text-xs text-slate-500">
                     {activeModalPost.category} • {activeModalPost.ward_name}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setActiveModalPost(null)}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white"
+                className="p-2 rounded-xl neu-btn text-slate-600"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-6 overflow-y-auto space-y-5">
+            <div className="p-6 overflow-y-auto space-y-5 bg-[#ebf0f7]">
               {updateSuccess && (
-                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2 font-semibold">
+                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 text-xs flex items-center gap-2 font-bold">
                   <Check className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>{updateSuccess}</span>
                 </div>
               )}
 
-              {/* Photo & Key Details Split */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <img
                     src={activeModalPost.photo_url}
                     alt=""
-                    className="w-full h-44 rounded-2xl object-cover border border-slate-200 shadow-xs"
+                    className="w-full h-44 rounded-2xl object-cover shadow-sm border border-slate-200"
                   />
                   <div className="mt-2 text-[11px] text-slate-500 font-mono flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Coordinates: {activeModalPost.lat}, {activeModalPost.lng}</span>
+                    <span>Location: {activeModalPost.lat}, {activeModalPost.lng}</span>
                   </div>
                 </div>
 
                 <div className="space-y-2.5 text-xs">
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                  <div className="p-3 rounded-2xl neu-flat">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                      Citizen Complaint (Raw)
+                      Citizen Description
                     </span>
-                    <p className="font-semibold text-slate-800 mt-1 leading-relaxed">
+                    <p className="font-bold text-slate-800 mt-1 leading-relaxed">
                       "{activeModalPost.description}"
                     </p>
                   </div>
 
-                  {activeModalPost.cleaned_description && (
-                    <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-900">
-                      <span className="text-[10px] font-bold uppercase tracking-wider block">
-                        AI English Translation / Summary
-                      </span>
-                      <p className="font-semibold mt-0.5">
-                        {activeModalPost.cleaned_description}
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-700">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl neu-flat">
                     <span className="text-slate-500 font-medium">Reporting Citizen:</span>
                     <span className="font-bold">{activeModalPost.citizen_name} ({activeModalPost.citizen_phone})</span>
                   </div>
 
-                  <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-slate-700">
-                    <span className="text-slate-500 font-medium">Community Priority:</span>
+                  <div className="flex items-center justify-between p-2.5 rounded-xl neu-flat">
+                    <span className="text-slate-500 font-medium">Priority Upvotes:</span>
                     <span className="font-extrabold text-indigo-700">👍 {activeModalPost.upvotes_count} Upvotes</span>
                   </div>
                 </div>
               </div>
 
-              {/* Status Update Form */}
-              <form onSubmit={handleSaveStatus} className="space-y-4 pt-2 border-t border-slate-100">
-                {/* 1. Status Buttons */}
+              <form onSubmit={handleSaveStatus} className="space-y-4 pt-2 border-t border-slate-200/60">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    1. Update Official Workflow Status
+                  <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">
+                    1. Update Official Status
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
@@ -890,10 +727,10 @@ export default function AdminPage({ onSwitchToCitizen }) {
                         key={item.id}
                         type="button"
                         onClick={() => setNewStatus(item.id)}
-                        className={`py-2.5 px-2 text-xs font-bold rounded-xl border transition-all ${
+                        className={`py-2.5 px-2 text-xs font-bold rounded-2xl border transition-all ${
                           newStatus === item.id
-                            ? `${item.color} text-white border-transparent shadow-md scale-102`
-                            : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                            ? `${item.color} text-white shadow-md scale-102`
+                            : 'neu-btn text-slate-700'
                         }`}
                       >
                         {item.label}
@@ -902,48 +739,25 @@ export default function AdminPage({ onSwitchToCitizen }) {
                   </div>
                 </div>
 
-                {/* 2. Department Assignment */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    2. Assigned Municipal Department
-                  </label>
-                  <select
-                    value={newDepartmentId}
-                    onChange={(e) => setNewDepartmentId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                  >
-                    <option value="">Select Department</option>
-                    {departments.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* 3. Official Municipal Note */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    3. Official Resolution Note (Visible in Citizen Feed)
+                  <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
+                    2. Official Action Note (Synced Real-Time to Citizens)
                   </label>
                   <textarea
                     rows={3}
                     required
                     value={officialNote}
                     onChange={(e) => setOfficialNote(e.target.value)}
-                    placeholder="e.g. Zone 8 road maintenance crew dispatched with cold-mix asphalt. Work scheduled for completion within 24 hours..."
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    placeholder="e.g. Field repair crew dispatched with cold-mix asphalt. Expected resolution in 24 hours..."
+                    className="w-full px-4 py-2.5 rounded-2xl neu-input text-xs font-medium"
                   />
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    💡 This message will immediately be visible on the post card in the citizen's neighborhood feed.
-                  </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between pt-2 border-t border-slate-200/60">
                   <button
                     type="button"
                     onClick={() => setActiveModalPost(null)}
-                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800"
+                    className="px-4 py-2 text-xs font-bold text-slate-600"
                   >
                     Cancel
                   </button>
@@ -951,9 +765,9 @@ export default function AdminPage({ onSwitchToCitizen }) {
                   <button
                     type="submit"
                     disabled={isUpdating}
-                    className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/30 transition-all flex items-center gap-2"
+                    className="px-6 py-2.5 rounded-2xl neu-btn-indigo text-xs font-bold flex items-center gap-2"
                   >
-                    {isUpdating ? 'Publishing...' : 'Save & Publish Resolution'}
+                    {isUpdating ? 'Saving...' : 'Save & Sync Real-Time'}
                   </button>
                 </div>
               </form>
@@ -965,12 +779,11 @@ export default function AdminPage({ onSwitchToCitizen }) {
   );
 }
 
-// Kanban individual card component
 function KanbanCard({ post, onOpenModal }) {
   return (
     <div
       onClick={onOpenModal}
-      className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-2xs hover:shadow-md hover:border-indigo-400 transition-all cursor-pointer space-y-2 group"
+      className="neu-card rounded-2xl p-3.5 cursor-pointer space-y-2 group hover:scale-[1.01] transition-all"
     >
       <div className="flex items-center justify-between">
         <span
@@ -993,10 +806,10 @@ function KanbanCard({ post, onOpenModal }) {
         <img
           src={post.photo_url}
           alt=""
-          className="w-14 h-14 rounded-lg object-cover border border-slate-200 shrink-0"
+          className="w-14 h-14 rounded-xl object-cover shadow-sm shrink-0"
         />
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-slate-900 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
+          <p className="text-xs font-bold text-slate-800 line-clamp-2 leading-tight group-hover:text-indigo-600 transition-colors">
             {post.cleaned_description || post.description}
           </p>
           <div className="text-[10px] text-slate-500 truncate mt-1">
@@ -1006,12 +819,12 @@ function KanbanCard({ post, onOpenModal }) {
       </div>
 
       {post.official_notes && (
-        <div className="p-1.5 bg-sky-50 rounded-lg text-[10px] text-sky-900 border border-sky-200 line-clamp-1">
+        <div className="p-1.5 bg-[#ebf0f7] shadow-[inset_2px_2px_4px_#cbd6e4,inset_-2px_-2px_4px_#ffffff] rounded-lg text-[10px] text-indigo-900 line-clamp-1">
           <strong>Note:</strong> {post.official_notes}
         </div>
       )}
 
-      <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px]">
+      <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 text-[11px]">
         <span className="font-extrabold text-slate-700">👍 {post.upvotes_count} upvotes</span>
         <span className="text-[10px] text-indigo-600 font-bold group-hover:underline flex items-center gap-0.5">
           Action <ChevronRight className="w-3 h-3" />

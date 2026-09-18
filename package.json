@@ -1,0 +1,19 @@
+{
+  "name": "citizen-connect",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Civic Connect - AI-Based Government Service Query Understanding and Guidance Platform",
+  "scripts": {
+    "dev": "cd client && npm run dev",
+    "build": "cd client && npm install && npm run build",
+    "vercel-build": "cd client && npm install && npm run build"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.13.1"
+  }
+}

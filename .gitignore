@@ -30,3 +30,4 @@ Thumbs.db
 # Uploads directory contents (keep directory structure)
 uploads/*
 !uploads/.gitkeep
+.vercel

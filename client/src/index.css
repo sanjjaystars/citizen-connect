@@ -2,6 +2,122 @@
 
 :root {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --neu-bg: #ebf0f7;
+  --neu-light: #ffffff;
+  --neu-dark: #cad5e3;
+  --neu-dark-pressed: #b8c7db;
+}
+
+body {
+  background-color: var(--neu-bg);
+  color: #1e293b;
+}
+
+/* ============================================================
+   NEUMORPHISM (SOFT UI) DESIGN SYSTEM
+   ============================================================ */
+
+/* Soft extruded neumorphic surface (Cards, Containers) */
+.neu-flat {
+  background: #ebf0f7;
+  box-shadow: 7px 7px 16px #cbd6e4, -7px -7px 16px #ffffff;
+}
+
+/* Stronger neumorphic elevation */
+.neu-card {
+  background: #ebf0f7;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 8px 8px 18px #c8d4e4, -8px -8px 18px #ffffff;
+}
+
+/* Subtle flat elevation */
+.neu-flat-sm {
+  background: #ebf0f7;
+  box-shadow: 4px 4px 10px #cdd8e7, -4px -4px 10px #ffffff;
+}
+
+/* Tactile clickable button: pops out, presses down on click */
+.neu-btn {
+  background: #ebf0f7;
+  box-shadow: 5px 5px 12px #c9d6e6, -5px -5px 12px #ffffff;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.neu-btn:hover {
+  box-shadow: 7px 7px 16px #c4d2e3, -7px -7px 16px #ffffff;
+  transform: translateY(-1px);
+}
+.neu-btn:active {
+  box-shadow: inset 3px 3px 6px #c9d6e6, inset -3px -3px 6px #ffffff;
+  transform: translateY(1px);
+}
+
+/* Primary emerald neumorphic button */
+.neu-btn-primary {
+  background: linear-gradient(145deg, #059669, #047857);
+  box-shadow: 5px 5px 14px #b8c8dc, -5px -5px 14px #ffffff;
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+.neu-btn-primary:hover {
+  box-shadow: 6px 6px 18px #a8bcd4, -6px -6px 18px #ffffff;
+  transform: translateY(-1px);
+}
+.neu-btn-primary:active {
+  box-shadow: inset 3px 3px 6px #035e44, inset -3px -3px 6px #06a877;
+  transform: translateY(1px);
+}
+
+/* Primary indigo admin neumorphic button */
+.neu-btn-indigo {
+  background: linear-gradient(145deg, #4f46e5, #4338ca);
+  box-shadow: 5px 5px 14px #b8c8dc, -5px -5px 14px #ffffff;
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+.neu-btn-indigo:hover {
+  box-shadow: 6px 6px 18px #a8bcd4, -6px -6px 18px #ffffff;
+  transform: translateY(-1px);
+}
+.neu-btn-indigo:active {
+  box-shadow: inset 3px 3px 6px #3730a3, inset -3px -3px 6px #6366f1;
+  transform: translateY(1px);
+}
+
+/* Sunken / Inset Neumorphic surface (Inputs, Textareas, Search boxes) */
+.neu-pressed,
+.neu-input {
+  background: #ebf0f7;
+  box-shadow: inset 4px 4px 8px #c8d4e4, inset -4px -4px 8px #ffffff;
+  border: 1px solid rgba(203, 213, 225, 0.4);
+  transition: all 0.2s ease;
+}
+.neu-input:focus {
+  outline: none;
+  box-shadow: inset 5px 5px 10px #c2d0e2, inset -5px -5px 10px #ffffff, 0 0 0 2px rgba(16, 185, 129, 0.4);
+}
+
+/* Neumorphic active tab / pill */
+.neu-pill-active {
+  background: #ebf0f7;
+  box-shadow: inset 3px 3px 6px #c8d4e4, inset -3px -3px 6px #ffffff;
+  color: #059669;
+  font-weight: 700;
+}
+
+.neu-pill-inactive {
+  background: #ebf0f7;
+  box-shadow: 3px 3px 8px #cdd8e7, -3px -3px 8px #ffffff;
+  color: #64748b;
+}
+.neu-pill-inactive:hover {
+  color: #0f172a;
+  box-shadow: 4px 4px 10px #c5d2e3, -4px -4px 10px #ffffff;
+}
+
+/* Neumorphic convex surface */
+.neu-convex {
+  background: linear-gradient(145deg, #fbfdff, #d4dde8);
+  box-shadow: 6px 6px 14px #cbd6e4, -6px -6px 14px #ffffff;
 }
 
 /* Custom modern scrollbars */
@@ -10,11 +126,12 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #ebf0f7;
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 9999px;
+  box-shadow: inset 1px 1px 2px #b0c0d4;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
@@ -24,7 +141,7 @@
 .leaflet-container {
   width: 100%;
   height: 100%;
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   z-index: 10;
 }
 
@@ -36,19 +153,4 @@
 
 .animate-subtle-pulse {
   animation: subtlePulse 2.5s infinite ease-in-out;
-}
-
-/* Custom glassmorphic styling */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-.glass-panel-dark {
-  background: rgba(15, 23, 42, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(51, 65, 85, 0.5);
 }

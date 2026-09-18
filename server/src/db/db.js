@@ -40,7 +40,10 @@ async function initDb() {
   // Fallback to built-in node:sqlite
   try {
     const { DatabaseSync } = require('node:sqlite');
-    const dbPath = path.join(__dirname, '../../civic_connect.db');
+    const isVercel = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+    const dbPath = isVercel
+      ? path.join('/tmp', 'civic_connect.db')
+      : path.join(__dirname, '../../civic_connect.db');
     sqliteDb = new DatabaseSync(dbPath);
     sqliteDb.exec('PRAGMA foreign_keys = ON;');
     isPostgres = false;
