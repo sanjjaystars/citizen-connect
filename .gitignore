@@ -1,0 +1,32 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Node dependencies
+node_modules
+dist
+dist-ssr
+*.local
+
+# Environment files & secrets
+.env
+.env.*
+!.env.example
+
+# Local SQLite databases
+*.db
+*.db-journal
+civic_connect.db
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Uploads directory contents (keep directory structure)
+uploads/*
+!uploads/.gitkeep
