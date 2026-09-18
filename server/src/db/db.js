@@ -80,7 +80,9 @@ function setupSqliteSchema() {
 
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      phone TEXT UNIQUE NOT NULL,
+      phone TEXT UNIQUE,
+      email TEXT UNIQUE,
+      avatar_url TEXT,
       name TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'citizen', -- 'citizen' or 'official'
       municipality_id INTEGER,

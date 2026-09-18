@@ -77,9 +77,6 @@ export function AuthProvider({ children }) {
           console.warn('Session expired or invalid, clearing:', err);
           logout();
         }
-      } else {
-        // Auto-login with default citizen for seamless reviewer experience
-        quickLogin('citizen-annanagar');
       }
       setLoading(false);
     }
@@ -88,6 +85,20 @@ export function AuthProvider({ children }) {
 
   const login = async (phone, otp, role = 'citizen', name) => {
     const res = await api.verifyOtp(phone, otp, role, name);
+    return handleAuthSuccess(res);
+  };
+
+  const loginWithGoogle = async (googleData) => {
+    const res = await api.googleLogin(googleData);
+    return handleAuthSuccess(res);
+  };
+
+  const loginWithEmail = async (emailData) => {
+    const res = await api.emailLogin(emailData);
+    return handleAuthSuccess(res);
+  };
+
+  const handleAuthSuccess = (res) => {
     if (res.token && res.user) {
       localStorage.setItem('civic_token', res.token);
       setToken(res.token);
@@ -147,6 +158,8 @@ export function AuthProvider({ children }) {
         currentWard,
         setLocation,
         login,
+        loginWithGoogle,
+        loginWithEmail,
         quickLogin,
         logout,
         showAuthModal,

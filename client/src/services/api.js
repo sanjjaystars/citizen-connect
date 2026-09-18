@@ -34,6 +34,8 @@ export const api = {
   sendOtp: (phone) => request('/auth/send-otp', { method: 'POST', body: JSON.stringify({ phone }) }),
   verifyOtp: (phone, otp, role = 'citizen', name) =>
     request('/auth/verify-otp', { method: 'POST', body: JSON.stringify({ phone, otp, role, name }) }),
+  googleLogin: (data) => request('/auth/google', { method: 'POST', body: JSON.stringify(data) }),
+  emailLogin: (data) => request('/auth/email', { method: 'POST', body: JSON.stringify(data) }),
   getMe: () => request('/auth/me'),
   updateProfile: (profileData) => request('/auth/profile', { method: 'PUT', body: JSON.stringify(profileData) }),
 

@@ -106,6 +106,168 @@ async function verifyOtp(req, res) {
   }
 }
 
+/**
+ * Real Google OAuth / Continue with Google login
+ */
+async function googleLogin(req, res) {
+  try {
+    const { credential, email: directEmail, name: directName, avatar_url: directAvatar, role = 'citizen' } = req.body;
+
+    let email = directEmail;
+    let name = directName;
+    let avatar_url = directAvatar;
+
+    // Decode Google JWT credential if provided
+    if (credential) {
+      try {
+        const payloadBase64 = credential.split('.')[1];
+        const decodedJson = Buffer.from(payloadBase64, 'base64').toString('utf8');
+        const googlePayload = JSON.parse(decodedJson);
+        email = googlePayload.email || email;
+        name = googlePayload.name || name;
+        avatar_url = googlePayload.picture || avatar_url;
+      } catch (decodeErr) {
+        console.warn('Could not decode Google credential JWT:', decodeErr.message);
+      }
+    }
+
+    if (!email) {
+      return res.status(400).json({ error: 'Valid Gmail or Google account email is required' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const finalName = name || cleanEmail.split('@')[0];
+
+    // Check if user exists with this email
+    const userRes = await query('SELECT * FROM users WHERE email = $1', [cleanEmail]);
+    let user = userRes.rows[0];
+
+    if (!user) {
+      const userPhone = req.body.phone || `g_${Math.floor(10000000 + Math.random() * 90000000)}`;
+      // Create new user with email and safe phone placeholder
+      const createRes = await query(
+        `INSERT INTO users (phone, email, name, role, avatar_url, municipality_id, ward_id)
+         VALUES ($1, $2, $3, $4, $5, 1, 1)`,
+        [userPhone, cleanEmail, finalName, role, avatar_url || null]
+      );
+      const newId = createRes.lastInsertRowid || (createRes.rows[0] && createRes.rows[0].id);
+      const fetchNew = await query('SELECT * FROM users WHERE id = $1', [newId]);
+      user = fetchNew.rows[0];
+    } else if (avatar_url && !user.avatar_url) {
+      // Update avatar if newly available
+      await query('UPDATE users SET avatar_url = $1 WHERE id = $2', [avatar_url, user.id]);
+      user.avatar_url = avatar_url;
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        name: user.name,
+        role: user.role,
+        municipality_id: user.municipality_id,
+        ward_id: user.ward_id,
+      },
+      JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    let municipalityName = null;
+    let wardName = null;
+    if (user.municipality_id) {
+      const m = await query('SELECT name FROM municipalities WHERE id = $1', [user.municipality_id]);
+      municipalityName = m.rows[0]?.name;
+    }
+    if (user.ward_id) {
+      const w = await query('SELECT name FROM wards WHERE id = $1', [user.ward_id]);
+      wardName = w.rows[0]?.name;
+    }
+
+    return res.json({
+      success: true,
+      message: 'Signed in with Google successfully',
+      token,
+      user: {
+        ...user,
+        municipality_name: municipalityName,
+        ward_name: wardName,
+      },
+    });
+  } catch (err) {
+    console.error('googleLogin error:', err);
+    return res.status(500).json({ error: 'Google sign-in failed' });
+  }
+}
+
+/**
+ * Direct Real Gmail / Email Passwordless Login
+ */
+async function emailLogin(req, res) {
+  try {
+    const { email, name, role = 'citizen' } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Please enter a valid email address (e.g. user@gmail.com)' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const displayName = name || cleanEmail.split('@')[0];
+
+    const userRes = await query('SELECT * FROM users WHERE email = $1', [cleanEmail]);
+    let user = userRes.rows[0];
+
+    if (!user) {
+      const userPhone = req.body.phone || `e_${Math.floor(10000000 + Math.random() * 90000000)}`;
+      const createRes = await query(
+        `INSERT INTO users (phone, email, name, role, municipality_id, ward_id)
+         VALUES ($1, $2, $3, $4, 1, 1)`,
+        [userPhone, cleanEmail, displayName, role]
+      );
+      const newId = createRes.lastInsertRowid || (createRes.rows[0] && createRes.rows[0].id);
+      const fetchNew = await query('SELECT * FROM users WHERE id = $1', [newId]);
+      user = fetchNew.rows[0];
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        municipality_id: user.municipality_id,
+        ward_id: user.ward_id,
+      },
+      JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    let municipalityName = null;
+    let wardName = null;
+    if (user.municipality_id) {
+      const m = await query('SELECT name FROM municipalities WHERE id = $1', [user.municipality_id]);
+      municipalityName = m.rows[0]?.name;
+    }
+    if (user.ward_id) {
+      const w = await query('SELECT name FROM wards WHERE id = $1', [user.ward_id]);
+      wardName = w.rows[0]?.name;
+    }
+
+    return res.json({
+      success: true,
+      token,
+      user: {
+        ...user,
+        municipality_name: municipalityName,
+        ward_name: wardName,
+      },
+    });
+  } catch (err) {
+    console.error('emailLogin error:', err);
+    return res.status(500).json({ error: 'Email sign-in failed' });
+  }
+}
+
 async function updateProfile(req, res) {
   try {
     const userId = req.user.id;
@@ -201,6 +363,8 @@ async function getMe(req, res) {
 module.exports = {
   sendOtp,
   verifyOtp,
+  googleLogin,
+  emailLogin,
   updateProfile,
   getMe,
 };

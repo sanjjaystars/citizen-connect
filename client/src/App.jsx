@@ -9,9 +9,11 @@ import AdminPage from './components/AdminPage';
 import CreatePostModal from './components/CreatePostModal';
 import AuthModal from './components/AuthModal';
 import LocationSelectorModal from './components/LocationSelectorModal';
+import SignInGate from './components/SignInGate';
+import { Loader2 } from 'lucide-react';
 
 function MainApp() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState(() => {
     if (window.location.hash === '#admin' || window.location.pathname === '/admin') {
       return 'admin';
@@ -47,6 +49,23 @@ function MainApp() {
   const handlePostCreated = () => {
     setRefreshKey((k) => k + 1);
   };
+
+  // 1. Loading state while checking token / session
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#ebf0f7] flex flex-col items-center justify-center p-4">
+        <div className="neu-card p-8 rounded-3xl flex flex-col items-center gap-4 text-slate-700">
+          <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+          <span className="text-sm font-bold tracking-wide">Connecting to Civic Connect...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Strict Sign-In Gate: User MUST sign in to continue into the website
+  if (!user) {
+    return <SignInGate />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans pb-16 md:pb-0">
